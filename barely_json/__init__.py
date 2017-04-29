@@ -17,13 +17,19 @@ __version__ = '0.1.0'
 
 class SpecialValue(object):
     def __init__(self, text):
-        self.text = text
+        self.text = text.strip()
 
     def __str__(self):
         return text
 
     def __repr__(self):
         return '<{} {!r}>'.format(self.__class__.__name__, self.text)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and other.text == self.text
+
+    def __hash__(self):
+        return hash(self.text)
 
     def resolve(self):
         low = self.text.lower()
@@ -103,14 +109,18 @@ list_ = (
              R_BRACKET)
         )
 
-# TODO: Allow dict entries that only consist of only a key (without a value)
 
-key = Combine(OneOrMore(quotedString ^ Regex(r'[^:]')))
+special = Combine(OneOrMore(quotedString ^ Regex(r'[^,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0]))
+# Like ``special`` but doesn't allow colons
+special_key = Combine(OneOrMore(quotedString ^ Regex(r'[^:,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0]))
+
+# TODO: Allow dict entries that only consist of only a key (without a value)
+key = string_ | special_key
 dict_ = Group(L_BRACE +
               Optional(dictOf(key + COLON, value + Optional(COMMA))) +
               R_BRACE).setParseAction(lambda t: dict(t.asList()[0]))
 
-special = Combine(OneOrMore(quotedString ^ Regex(r'[^,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0]))
+
 
 value << (dict_ | list_ | int_ | float_ | string_ | null | true | false | special)
 
