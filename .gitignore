@@ -1,0 +1,8 @@
+/.cache/
+/venv/
+
+*.egg-info/
+
+.*.swp
+*.pyc
+
