@@ -6,7 +6,10 @@ from __future__ import (absolute_import, division, print_function,
 
 from itertools import izip
 
-import barely_json
+from barely_json import *
+
+
+empty = EmptyValue()
 
 
 def pairwise(iterable):
@@ -19,7 +22,8 @@ def pairwise(iterable):
 
 def check(*args):
     for code, expected in pairwise(args):
-        assert barely_json.parse(code) == expected
+        #print(barely_json.parse(code))
+        assert parse(code) == expected
 
 
 def test_empty_list():
@@ -28,5 +32,37 @@ def test_empty_list():
         '[ ]', [],
         '[\n]', [],
         '[\t]', [],
+    )
+
+
+def test_empty_list_element():
+    check(
+        '[,]', [empty, empty],
+        '[,,]', [empty, empty, empty],
+        '[1,]', [1, empty],
+        '[1,,]', [1, empty, empty],
+        '[,1]', [empty, 1],
+        '[,,1]', [empty, empty, 1],
+        '[1,,2]', [1, empty, 2],
+        '[1,,2,]', [1, empty, 2, empty],
+        '[1,,,2]', [1, empty, empty, 2],
+    )
+
+
+def test_empty_dict():
+    check(
+        '{}', {},
+        '{ }', {},
+        '{\n}', {},
+        '{\t}', {},
+    )
+
+
+def test_dict():
+    check(
+        '{1: 2}', {'1': 2},
+        '{1: 2, 3: 4}', {'1': 2, '3': 4},
+        "{'1': 2}", {"'1'": 2},
+        '{"1": 2}', {'"1"': 2},
     )
 
