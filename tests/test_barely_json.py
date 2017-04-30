@@ -67,3 +67,27 @@ def test_dict():
         '''{a b ":" ':' 2 3 : 1}''', {SpecialValue('''a b ":" ':' 2 3'''): 1},
     )
 
+
+def test_empty_dict_element():
+    check(
+        '{,}', {},
+        '{,,}', {},
+        '{,,,}', {},
+        '{"a":1,}', {'a': 1},
+        '{"a":1,,}', {'a': 1},
+        '{,,"a":1}', {'a': 1},
+        '{,"a":1,}', {'a': 1},
+        '{"a":1,,"b":2}', {'a': 1, 'b': 2},
+        '{"a":1,,,"b":2}', {'a': 1, 'b': 2},
+    )
+
+
+def test_missing_dict_value():
+    check(
+        '{"a"}', {'a': EmptyValue()},
+        '{"a", "b": 1}', {'a': EmptyValue(), 'b': 1},
+        '{"a": 1, "b"}', {'a': 1, 'b': EmptyValue()},
+        '{"a":}', {'a': EmptyValue()},
+        '{"a":, "b": 1}', {'a': EmptyValue(), 'b': 1},
+        '{"a": 1, "b":}', {'a': 1, 'b': EmptyValue()},
+    )

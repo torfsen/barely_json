@@ -116,10 +116,10 @@ special_key = Combine(OneOrMore(quotedString ^ Regex(r'[^:,{}[\]]'))).setParseAc
 
 # TODO: Allow dict entries that only consist of only a key (without a value)
 key = string_ | special_key
-dict_ = Group(L_BRACE +
-              Optional(dictOf(key + COLON, value + Optional(COMMA))) +
-              R_BRACE).setParseAction(lambda t: dict(t.asList()[0]))
 
+dict_item = Group(key + Optional(COLON + Optional(value, default=EmptyValue()), default=EmptyValue()))
+dict_content = delimitedList(dict_item ^ Empty()).setParseAction(lambda t: dict(t.asList()))
+dict_ = L_BRACE + dict_content + R_BRACE
 
 
 value << (dict_ | list_ | int_ | float_ | string_ | null | true | false | special)
