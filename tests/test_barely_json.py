@@ -10,7 +10,7 @@ from itertools import izip
 from barely_json import *
 
 
-empty = EmptyValue()
+empty = IllegalValue('')
 
 
 def pairwise(iterable):
@@ -59,11 +59,11 @@ class TestParse(object):
 
     def test_dict(self):
         self.check(
-            '{1: 2}', {SpecialValue('1'): 2},
-            '{1: 2, 3: 4}', {SpecialValue('1'): 2, SpecialValue('3'): 4},
-            "{'1': 2}", {SpecialValue("'1'"): 2},
+            '{1: 2}', {IllegalValue('1'): 2},
+            '{1: 2, 3: 4}', {IllegalValue('1'): 2, IllegalValue('3'): 4},
+            "{'1': 2}", {IllegalValue("'1'"): 2},
             '{"1": 2}', {'1': 2},
-            '''{a b ":" ':' 2 3 : 1}''', {SpecialValue('''a b ":" ':' 2 3'''): 1},
+            '''{a b ":" ':' 2 3 : 1}''', {IllegalValue('''a b ":" ':' 2 3'''): 1},
         )
 
     def test_empty_dict_element(self):
@@ -81,12 +81,12 @@ class TestParse(object):
 
     def test_missing_dict_value(self):
         self.check(
-            '{"a"}', {'a': EmptyValue()},
-            '{"a", "b": 1}', {'a': EmptyValue(), 'b': 1},
-            '{"a": 1, "b"}', {'a': 1, 'b': EmptyValue()},
-            '{"a":}', {'a': EmptyValue()},
-            '{"a":, "b": 1}', {'a': EmptyValue(), 'b': 1},
-            '{"a": 1, "b":}', {'a': 1, 'b': EmptyValue()},
+            '{"a"}', {'a': empty},
+            '{"a", "b": 1}', {'a': empty, 'b': 1},
+            '{"a": 1, "b"}', {'a': 1, 'b': empty},
+            '{"a":}', {'a': empty},
+            '{"a":, "b": 1}', {'a': empty, 'b': 1},
+            '{"a": 1, "b":}', {'a': 1, 'b': empty},
         )
 
 
@@ -97,7 +97,7 @@ class TestDefaultResolver(object):
             assert default_resolver(value) == expected
 
     def test_empty(self):
-        self.check(None, None)
+        self.check('', '')
 
     def test_boolean(self):
         self.check(
@@ -158,41 +158,41 @@ class TestResolve(object):
         self.check(
             [], [],
             [1, 'foo', True], [1, 'foo', True],
-            [empty, SpecialValue('NO')], [None, False],
+            [empty, IllegalValue('NO')], ['', False],
         )
 
     def test_dict(self):
         self.check(
             {}, {},
             {'a': 1, 'b': True, 'c': None}, {'a': 1, 'b': True, 'c': None},
-            {'a': empty}, {'a': None},
-            {'a': SpecialValue('false')}, {'a': False},
-            {SpecialValue('YES'): SpecialValue('no')}, {True: False},
+            {'a': empty}, {'a': ''},
+            {'a': IllegalValue('false')}, {'a': False},
+            {IllegalValue('YES'): IllegalValue('no')}, {True: False},
         )
 
     def test_scalar(self):
         self.check(
             1, 1,
             'foo', 'foo',
-            empty, None,
-            SpecialValue('YES'), True,
+            empty, '',
+            IllegalValue('YES'), True,
         )
 
     def test_nested(self):
         self.check(
-            [empty, {SpecialValue('yes'): [SpecialValue('no')]}],
-            [None, {True: [False]}]
+            [empty, {IllegalValue('yes'): [IllegalValue('no')]}],
+            ['', {True: [False]}]
         )
 
     def test_custom_resolver(self):
         resolver = lambda value: 1 if value == 'one' else value
         self.check(
-            SpecialValue('one'), 1,
-            SpecialValue('true'), 'true',
-            [SpecialValue('one')], [1],
-            [SpecialValue('true')], ['true'],
-            {SpecialValue('one'): SpecialValue('one')}, {1: 1},
-            {SpecialValue('true'): SpecialValue('true')}, {'true': 'true'},
+            IllegalValue('one'), 1,
+            IllegalValue('true'), 'true',
+            [IllegalValue('one')], [1],
+            [IllegalValue('true')], ['true'],
+            {IllegalValue('one'): IllegalValue('one')}, {1: 1},
+            {IllegalValue('true'): IllegalValue('true')}, {'true': 'true'},
             resolver=resolver
         )
 

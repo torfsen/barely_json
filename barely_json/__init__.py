@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+'''
+A very forgiving JSON parser.
+'''
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -12,46 +16,53 @@ from pyparsing import *
 __version__ = '0.1.0'
 
 
-# Based on http://stackoverflow.com/a/3602436/857390
+class IllegalValue(object):
+    '''
+    A value that is illegal in JSON.
 
-class SpecialValue(object):
-    def __init__(self, text):
-        self.text = text
+    ``parse`` wraps anything that isn't standard JSON into an
+    ``IllegalValue`` instance. By default, these are then automatically
+    resolved into standard Python types via ``resolve``. However, if you
+    pass ``resolver=None`` to ``parse`` and your input contains illegal
+    values then your output will contain instances of this class.
+
+    The part of the source that is represented by this instance is
+    stored in the ``source`` attribute. That may be the empty string in
+    cases like ``[1, , 2]``.
+    '''
+    def __init__(self, source):
+        '''
+        Constructor.
+
+        ``source`` is a string.
+        '''
+        self.source = source
 
     def __str__(self):
-        return text
+        return source
 
     def __repr__(self):
-        return '<{} {!r}>'.format(self.__class__.__name__, self.text)
+        return '<{} {!r}>'.format(self.__class__.__name__, self.source)
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and other.text == self.text
+        return (isinstance(other, self.__class__) and
+                other.source == self.source)
 
     def __hash__(self):
-        return hash(self.text)
-
-
-class EmptyValue(SpecialValue):
-    def __init__(self):
-        super(EmptyValue, self).__init__(None)
-
-    def __repr__(self):
-        return '<{}>'.format(self.__class__.__name__)
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return True
-        return False
-
-
-#def CaselessKeywords(*args):
-#    return Or(map(CaselessKeyword, args))
+        return hash(self.source)
 
 
 def to_float(t):
+    '''
+    Convert a string that looks like a float to a float.
+    '''
     return float(re.sub(r'\s*', '', t[0]))
 
+
 def to_int(t):
+    '''
+    Convert a string that looks like an int to an int.
+    '''
     return int(re.sub(r'\s*', '', t[0]))
 
 
@@ -71,36 +82,49 @@ float_ = Regex(FLOAT_RE).setParseAction(to_float)
 
 string_ = QuotedString('"')
 
-empty = Empty().setParseAction(lambda: EmptyValue())
+empty = Empty().setParseAction(lambda: IllegalValue(''))
 
-
-# Special case the empty list to avoid EmptyValue
+# Special case the empty list to avoid [IllegalValue('')]
 list_ = (
-        (L_BRACKET + R_BRACKET).setParseAction(lambda: [[]]) |
-        Group(L_BRACKET +
-             Optional(delimitedList(value ^
-                                    Empty().setParseAction(lambda: EmptyValue()))) +
-             R_BRACKET)
-        )
+    (L_BRACKET + R_BRACKET).setParseAction(lambda: [[]]) |
+    Group(L_BRACKET + Optional(delimitedList(value ^ empty)) + R_BRACKET)
+)
 
+illegal = Combine(OneOrMore(quotedString ^ Regex(r'[^,{}[\]]')))\
+                .setParseAction(lambda t: IllegalValue(t[0].strip()))
+# Like ``illegal`` but doesn't allow colons
+illegal_key = Combine(OneOrMore(quotedString ^ Regex(r'[^:,{}[\]]')))\
+                .setParseAction(lambda t: IllegalValue(t[0].strip()))
 
-special = Combine(OneOrMore(quotedString ^ Regex(r'[^,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0].strip()))
-# Like ``special`` but doesn't allow colons
-special_key = Combine(OneOrMore(quotedString ^ Regex(r'[^:,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0].strip()))
-
-key = string_ | special_key
-
-dict_item = Group(key + Optional(COLON + Optional(value, default=EmptyValue()), default=EmptyValue()))
-dict_content = delimitedList(dict_item ^ Empty()).setParseAction(lambda t: dict(t.asList()))
+dict_key = string_ | illegal_key
+dict_value = Optional(value, default=IllegalValue(''))
+dict_item = Group(dict_key + Optional(COLON + dict_value,
+                  default=IllegalValue('')))
+dict_content = delimitedList(dict_item ^ Empty())\
+                .setParseAction(lambda t: dict(t.asList()))
 dict_ = L_BRACE + dict_content + R_BRACE
 
-
-value << (dict_ | list_ | int_ | float_ | string_ | null | true | false | special)
+value << (dict_ | list_ | int_ | float_ | string_ |
+          null | true | false | illegal)
 
 
 def default_resolver(value):
-    if value is None:
-        return None
+    '''
+    Default resolver for illegal values.
+
+    Case-insensitively resolves
+
+    - ``'true'``, ``'yes'``, and ``'on'`` to ``True``
+
+    - ``'false'``, ``'no'``, and ``'off'`` to ``False``
+
+    - ``'null'`` and ``'none'`` to ``None``
+
+    - ``'inf'``, ``'-inf'``, and ``'nan'`` to their ``float``
+      counterparts
+
+    All other strings are returned unchanged.
+    '''
     low = value.lower()
     if low in ['true', 'yes', 'on']:
         return True
@@ -117,6 +141,17 @@ def default_resolver(value):
 
 
 def resolve(data, resolver=default_resolver):
+    '''
+    Recursively resolve illegal values.
+
+    ``data`` is a potentially nested Python value as returned by
+    ``parse``.
+
+    ``resolver`` is a function that maps strings to arbitrary values.
+
+    All instances of ``IllegalValue`` in ``data`` are replaced by the
+    result of feeding them into ``resolver``.
+    '''
     if isinstance(data, list):
         items = []
         for item in data:
@@ -127,12 +162,20 @@ def resolve(data, resolver=default_resolver):
         for key, value in data.iteritems():
             items[resolve(key, resolver)] = resolve(value, resolver)
         return items
-    if isinstance(data, SpecialValue):
-        return resolver(data.text)
+    if isinstance(data, IllegalValue):
+        return resolver(data.source)
     return data
 
 
 def parse(s, resolver=default_resolver):
+    '''
+    Parse a string that contains barely JSON.
+
+    When values that are illegal in JSON are encountered then they are
+    by default heuristicaly resolved to a suitable Python type (see
+    ``resolve`` and ``default_resolver``). Set ``resolver`` to a custom
+    callback or to a falsy value to modify or disable that mechanism.
+    '''
     parsed = value.parseString(s, parseAll=True)
     data = parsed.asList()[0]
     if resolver:
