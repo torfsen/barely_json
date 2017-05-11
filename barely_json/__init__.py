@@ -4,7 +4,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import ast
 import re
 
 from pyparsing import *
@@ -17,7 +16,7 @@ __version__ = '0.1.0'
 
 class SpecialValue(object):
     def __init__(self, text):
-        self.text = text.strip()
+        self.text = text
 
     def __str__(self):
         return text
@@ -31,30 +30,10 @@ class SpecialValue(object):
     def __hash__(self):
         return hash(self.text)
 
-    def resolve(self):
-        low = self.text.lower()
-        no_space = re.sub(r'\s+', '', low)
-        if low in ['true', 'yes', 'on']:
-            return True
-        if low in ['false', 'no', 'off']:
-            return False
-        if low in ['null', 'none']:
-            return None
-        try:
-            # Handles +/- NaN/Inf
-            return float(no_space)
-        except ValueError:
-            pass
-        try:
-            return ast.literal_eval(self.text)
-        except ValueError:
-            pass
-        return self
-
 
 class EmptyValue(SpecialValue):
     def __init__(self):
-        super(EmptyValue, self).__init__('')
+        super(EmptyValue, self).__init__(None)
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
@@ -74,11 +53,6 @@ def to_float(t):
 
 def to_int(t):
     return int(re.sub(r'\s*', '', t[0]))
-
-
-# Idea: Parse anything that's not strict JSON into a SpecialValue. Resolve
-# common special values (e.g. "nan") into sensible Python values by default
-# but let the user disable that to do their own conversion.
 
 
 L_BRACKET, R_BRACKET, L_BRACE, R_BRACE, COLON, COMMA = map(Suppress, '[]{}:,')
@@ -110,11 +84,10 @@ list_ = (
         )
 
 
-special = Combine(OneOrMore(quotedString ^ Regex(r'[^,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0]))
+special = Combine(OneOrMore(quotedString ^ Regex(r'[^,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0].strip()))
 # Like ``special`` but doesn't allow colons
-special_key = Combine(OneOrMore(quotedString ^ Regex(r'[^:,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0]))
+special_key = Combine(OneOrMore(quotedString ^ Regex(r'[^:,{}[\]]'))).setParseAction(lambda t: SpecialValue(t[0].strip()))
 
-# TODO: Allow dict entries that only consist of only a key (without a value)
 key = string_ | special_key
 
 dict_item = Group(key + Optional(COLON + Optional(value, default=EmptyValue()), default=EmptyValue()))
@@ -125,12 +98,44 @@ dict_ = L_BRACE + dict_content + R_BRACE
 value << (dict_ | list_ | int_ | float_ | string_ | null | true | false | special)
 
 
+def default_resolver(value):
+    if value is None:
+        return None
+    low = value.lower()
+    if low in ['true', 'yes', 'on']:
+        return True
+    if low in ['false', 'no', 'off']:
+        return False
+    if low in ['null', 'none']:
+        return None
+    try:
+        # Handles +/- NaN/Inf
+        return float(re.sub(r'\s+', '', low))
+    except ValueError:
+        pass
+    return value
 
 
-def parse(s):
+def resolve(data, resolver=default_resolver):
+    if isinstance(data, list):
+        items = []
+        for item in data:
+            items.append(resolve(item, resolver))
+        return items
+    if isinstance(data, dict):
+        items = {}
+        for key, value in data.iteritems():
+            items[resolve(key, resolver)] = resolve(value, resolver)
+        return items
+    if isinstance(data, SpecialValue):
+        return resolver(data.text)
+    return data
+
+
+def parse(s, resolver=default_resolver):
     parsed = value.parseString(s, parseAll=True)
-    #print(parsed)
-    #import pdb; pdb.set_trace()
-    return parsed.asList()[0]
-
+    data = parsed.asList()[0]
+    if resolver:
+        data = resolve(data, resolver=resolver)
+    return data
 
