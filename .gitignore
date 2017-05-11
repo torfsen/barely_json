@@ -1,5 +1,7 @@
 /.cache/
 /venv/
+/.tox/
+/dist/
 
 *.egg-info/
 

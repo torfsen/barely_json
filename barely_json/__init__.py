@@ -10,6 +10,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import re
 
+from six import iteritems
 from pyparsing import *
 
 
@@ -159,7 +160,7 @@ def resolve(data, resolver=default_resolver):
         return items
     if isinstance(data, dict):
         items = {}
-        for key, value in data.iteritems():
+        for key, value in iteritems(data):
             items[resolve(key, resolver)] = resolve(value, resolver)
         return items
     if isinstance(data, IllegalValue):

@@ -5,7 +5,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import math
-from itertools import izip
+
+from six.moves import zip
 
 from barely_json import *
 
@@ -18,7 +19,7 @@ def pairwise(iterable):
     s -> (s0, s1), (s2, s3), (s4, s5), ...
     '''
     a = iter(iterable)
-    return izip(a, a)
+    return zip(a, a)
 
 
 class TestParse(object):

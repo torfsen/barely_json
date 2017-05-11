@@ -58,7 +58,7 @@ setup(
     author='Florian Brucker',
     author_email='mail@florianbrucker.de',
 
-    packages=find_packages('.'),
-    #package_dir={'': 'src'},
+    packages=find_packages(),
     install_requires=requirements,
 )
+
