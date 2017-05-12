@@ -2,6 +2,7 @@
 /venv/
 /.tox/
 /dist/
+/README.html
 
 *.egg-info/
 
