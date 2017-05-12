@@ -4,6 +4,11 @@
 
 *A Python package for parsing data that only looks like JSON*
 
+    from barely_json import parse
+    print(parse('[what is this?, , {perhaps, json: no}]'))
+
+    # Prints ['what is this?', '', {'perhaps': '', 'json': False}]
+
 Quite a bit of data looks like JSON at a first glance but turns out not to comply completely with the JSON specification -- often because the exporting software is broken, but sometimes simply because the format was never intended to be JSON in the first place.
 
 No matter how you ended up with the data, now you want to parse it! However, most JSON parsers are pretty strict, so you're out of luck with your JSON-esque mess.
