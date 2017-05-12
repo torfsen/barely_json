@@ -79,6 +79,7 @@ false = Keyword('false').setParseAction(lambda: False)
 int_ = Regex(r'[+-]?\s*\d+').setParseAction(to_int)
 
 FLOAT_RE = r'[+-]?\s*(0(\.\d*)?|([1-9]\d*\.?\d*)|(\.\d+))([Ee][+-]?\d+)?'
+
 float_ = Regex(FLOAT_RE).setParseAction(to_float)
 
 string_ = QuotedString('"')
@@ -105,7 +106,7 @@ dict_content = delimitedList(dict_item ^ Empty())\
                 .setParseAction(lambda t: dict(t.asList()))
 dict_ = L_BRACE + dict_content + R_BRACE
 
-value << (dict_ | list_ | int_ | float_ | string_ |
+value << (dict_ | list_ | float_ | int_ | string_ |
           null | true | false | illegal)
 
 
