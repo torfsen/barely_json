@@ -1,5 +1,7 @@
 # Barely JSON
 
+[![Travis CI badge](https://travis-ci.org/torfsen/barely_json.svg?branch=master)](https://travis-ci.org/torfsen/barely_json)
+
 *A Python package for parsing data that only looks like JSON*
 
 Quite a bit of data looks like JSON at a first glance but turns out not to comply completely with the JSON specification -- often because the exporting software is broken, but sometimes simply because the format was never intended to be JSON in the first place.
@@ -10,6 +12,8 @@ That's where *Barely JSON* steps in and tries to parse anything that remotely lo
 
 
 # Installation
+
+The supported Python versions are 2.7 as well as 3.3 and later.
 
 As usual it's recommended to use a [virtualenv] to keep things tidy.
 
