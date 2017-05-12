@@ -3,6 +3,7 @@
 /.tox/
 /dist/
 /README.html
+/CHANGELOG.html
 
 *.egg-info/
 
