@@ -7,6 +7,7 @@ The format of this file is based on [Keep a Changelog] and this project adheres 
 ### Fixed
 
 - Floats were not parsed correctly ([#1])
+- String escapes were not parsed correctly ([#2])
 
 ## 0.1.0 (2017-05-12)
 
@@ -22,4 +23,5 @@ The format of this file is based on [Keep a Changelog] and this project adheres 
 [Unreleased]: https://github.com/torfsen/barely_json/compare/v0.1.0...master
 
 [#1]: https://github.com/torfsen/barely_json/issues/1
+[#2]: https://github.com/torfsen/barely_json/issues/2
 

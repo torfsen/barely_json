@@ -8,6 +8,7 @@ A very forgiving JSON parser.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import codecs
 import re
 
 from six import iteritems
@@ -67,6 +68,30 @@ def to_int(t):
     return int(re.sub(r'\s*', '', t[0]))
 
 
+# From http://stackoverflow.com/a/24519338/857390
+
+ESCAPE_SEQUENCE_RE = re.compile(r'''
+    ( \\U........      # 8-digit hex escapes
+    | \\u....          # 4-digit hex escapes
+    | \\x..            # 2-digit hex escapes
+    | \\[0-7]{1,3}     # Octal escapes
+    | \\N\{[^}]+\}     # Unicode characters by name
+    | \\[\\'"abfnrtv]  # Single-character escapes
+    )''',
+    re.UNICODE | re.VERBOSE
+)
+
+
+def decode_escapes(s):
+    '''
+    Decode string escape sequences.
+    '''
+    def decode_match(match):
+        return codecs.decode(match.group(0), 'unicode-escape')
+    result = ESCAPE_SEQUENCE_RE.sub(decode_match, s)
+    return result
+
+
 L_BRACKET, R_BRACKET, L_BRACE, R_BRACE, COLON, COMMA = map(Suppress, '[]{}:,')
 
 value = Forward()
@@ -82,7 +107,10 @@ FLOAT_RE = r'[+-]?\s*(0(\.\d*)?|([1-9]\d*\.?\d*)|(\.\d+))([Ee][+-]?\d+)?'
 
 float_ = Regex(FLOAT_RE).setParseAction(to_float)
 
-string_ = QuotedString('"')
+# PyParsing's QuotedString preprocesses some escape sequences incorrectly,
+# so we're doing things manually.
+string_ = Regex(r'".*?(?<!\\)(\\\\)*"')\
+            .setParseAction(lambda t: decode_escapes(t[0][1:-1]))
 
 empty = Empty().setParseAction(lambda: IllegalValue(''))
 
@@ -139,7 +167,7 @@ def default_resolver(value):
         return float(re.sub(r'\s+', '', low))
     except ValueError:
         pass
-    return value
+    return decode_escapes(value)
 
 
 def resolve(data, resolver=default_resolver):

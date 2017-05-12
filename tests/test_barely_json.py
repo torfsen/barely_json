@@ -14,6 +14,33 @@ from barely_json import *
 empty = IllegalValue('')
 
 
+STRING_ESCAPE_TESTS = [
+    r'\t', '\t',
+    r'\\', '\\',
+    r'\\\\', '\\\\',
+    r'\\\\\\', '\\\\\\',
+    r'\"', '"',
+    r'\\\"', '\\"',
+    r'\\\\\"', '\\\\"',
+    r'\'', "'",
+    r'\a', '\a',
+    r'\b', '\b',
+    r'\f', '\f',
+    r'\n', '\n',
+    r'\r', '\r',
+    r'\t', '\t',
+    r'\v', '\v',
+    r'\o1', '\o1',
+    r'\o12', '\o12',
+    r'\o123', '\o123',
+    r'\xef', '\xef',
+    r'\xEF', '\xef',
+    r'\N{SNOWMAN}', '\N{SNOWMAN}',
+    r'\u2603', '\u2603',
+    r'\U00002603', '\U00002603',
+]
+
+
 def pairwise(iterable):
     '''
     s -> (s0, s1), (s2, s3), (s4, s5), ...
@@ -114,6 +141,12 @@ class TestParse(object):
             '-123.E-3', -123e-3,
         )
 
+    def test_string_escapes(self):
+        cases = (
+            ('"{}"'.format(x), y) for x, y in pairwise(STRING_ESCAPE_TESTS)
+        )
+        self.check(*(x for case in cases for x in case))
+
 
 class TestDefaultResolver(object):
 
@@ -170,6 +203,9 @@ class TestDefaultResolver(object):
             'foo', 'foo',
             'FOO', 'FOO',
         )
+
+    def test_string_escapes(self):
+        self.check(*STRING_ESCAPE_TESTS)
 
 
 class TestResolve(object):
