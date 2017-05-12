@@ -15,7 +15,7 @@ from six import iteritems
 from pyparsing import *
 
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 class IllegalValue(object):
