@@ -17,13 +17,12 @@ The supported Python versions are 2.7 as well as 3.3 and later.
 
 As usual it's recommended to use a [virtualenv] to keep things tidy.
 
-    pip install git+https://github.com/torfsen/barely_json.git#egg=barely_json
+    pip install barely_json
 
 
 # Usage
 
 The main routine is `parse`:
-
 
     > from barely_json import parse
     > parse("[NaN, , {state: off, where's my value?}, NULL]")
