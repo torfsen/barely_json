@@ -183,15 +183,9 @@ def resolve(data, resolver=default_resolver):
     result of feeding them into ``resolver``.
     '''
     if isinstance(data, list):
-        items = []
-        for item in data:
-            items.append(resolve(item, resolver))
-        return items
+        return [resolve(item, resolver) for item in data]
     if isinstance(data, dict):
-        items = {}
-        for key, value in iteritems(data):
-            items[resolve(key, resolver)] = resolve(value, resolver)
-        return items
+        return {resolve(key, resolver): resolve(value, resolver) for key, value in iteritems(data)}
     if isinstance(data, IllegalValue):
         return resolver(data.source)
     return data
