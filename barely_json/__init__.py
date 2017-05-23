@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-"""
+'''
 A very forgiving JSON parser.
-"""
+'''
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -19,7 +19,7 @@ __version__ = '0.1.1'
 
 
 class IllegalValue(object):
-    """
+    '''
     A value that is illegal in JSON.
 
     ``parse`` wraps anything that isn't standard JSON into an
@@ -31,13 +31,13 @@ class IllegalValue(object):
     The part of the source that is represented by this instance is
     stored in the ``source`` attribute. That may be the empty string in
     cases like ``[1, , 2]``.
-    """
+    '''
     def __init__(self, source):
-        """
+        '''
         Constructor.
 
         ``source`` is a string.
-        """
+        '''
         self.source = source
 
     def __str__(self):
@@ -55,16 +55,16 @@ class IllegalValue(object):
 
 
 def to_float(t):
-    """
+    '''
     Convert a string that looks like a float to a float.
-    """
+    '''
     return float(re.sub(r'\s*', '', t[0]))
 
 
 def to_int(t):
-    """
+    '''
     Convert a string that looks like an int to an int.
-    """
+    '''
     return int(re.sub(r'\s*', '', t[0]))
 
 
@@ -81,9 +81,9 @@ ESCAPE_SEQUENCE_RE = re.compile(r'''
 
 
 def decode_escapes(s):
-    """
+    '''
     Decode string escape sequences.
-    """
+    '''
     def decode_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
     result = ESCAPE_SEQUENCE_RE.sub(decode_match, s)
@@ -136,8 +136,8 @@ value << (dict_ | list_ | float_ | int_ | string_ |
           null | true | false | illegal)
 
 
-def default_resolver(value_):
-    """
+def default_resolver(value):
+    '''
     Default resolver for illegal values.
 
     Case-insensitively resolves
@@ -152,8 +152,8 @@ def default_resolver(value_):
       counterparts
 
     All other strings are returned unchanged.
-    """
-    low = value_.lower()
+    '''
+    low = value.lower()
     if low in ['true', 'yes', 'on']:
         return True
     if low in ['false', 'no', 'off']:
@@ -165,11 +165,11 @@ def default_resolver(value_):
         return float(re.sub(r'\s+', '', low))
     except ValueError:
         pass
-    return decode_escapes(value_)
+    return decode_escapes(value)
 
 
 def resolve(data, resolver=default_resolver):
-    """
+    '''
     Recursively resolve illegal values.
 
     ``data`` is a potentially nested Python value as returned by
@@ -179,25 +179,25 @@ def resolve(data, resolver=default_resolver):
 
     All instances of ``IllegalValue`` in ``data`` are replaced by the
     result of feeding them into ``resolver``.
-    """
+    '''
     if isinstance(data, list):
         return [resolve(item, resolver) for item in data]
     if isinstance(data, dict):
-        return {resolve(key, resolver): resolve(value_, resolver) for key, value_ in iteritems(data)}
+        return {resolve(key, resolver): resolve(value, resolver) for key, value in iteritems(data)}
     if isinstance(data, IllegalValue):
         return resolver(data.source)
     return data
 
 
 def parse(s, resolver=default_resolver):
-    """
+    '''
     Parse a string that contains barely JSON.
 
     When values that are illegal in JSON are encountered then they are
     by default heuristicaly resolved to a suitable Python type (see
     ``resolve`` and ``default_resolver``). Set ``resolver`` to a custom
     callback or to a falsy value to modify or disable that mechanism.
-    """
+    '''
     parsed = value.parseString(s, parseAll=True)
     data = parsed.asList()[0]
     if resolver:

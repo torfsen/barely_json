@@ -40,9 +40,9 @@ STRING_ESCAPE_TESTS = [
 
 
 def pairwise(iterable):
-    """
+    '''
     s -> (s0, s1), (s2, s3), (s4, s5), ...
-    """
+    '''
     a = iter(iterable)
     return zip(a, a)
 
@@ -149,8 +149,8 @@ class TestParse(object):
 class TestDefaultResolver(object):
     @staticmethod
     def check(*args):
-        for value_, expected in pairwise(args):
-            assert default_resolver(value_) == expected
+        for value, expected in pairwise(args):
+            assert default_resolver(value) == expected
 
     def test_empty(self):
         self.check('', '')
@@ -210,8 +210,8 @@ class TestResolve(object):
     @staticmethod
     def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', default_resolver)
-        for value_, expected in pairwise(args):
-            assert resolve(value_, resolver=resolver) == expected
+        for value, expected in pairwise(args):
+            assert resolve(value, resolver=resolver) == expected
 
     def test_list(self):
         self.check(
@@ -244,10 +244,10 @@ class TestResolve(object):
         )
 
     def test_custom_resolver(self):
-        def resolver(value_):
-            if value_ == 'one':
+        def resolver(value):
+            if value == 'one':
                 return 1
-            return value_
+            return value
 
         self.check(
             IllegalValue('one'), 1,
@@ -259,5 +259,7 @@ class TestResolve(object):
             resolver=resolver
         )
 
+
+class TestIllegalValue(object):
     def test_str_illegal(self):
         assert str(IllegalValue('one')) == 'one'
