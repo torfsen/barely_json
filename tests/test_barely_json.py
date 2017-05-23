@@ -10,9 +10,7 @@ from six.moves import zip
 
 from barely_json import *
 
-
 empty = IllegalValue('')
-
 
 STRING_ESCAPE_TESTS = [
     r'\t', '\t',
@@ -42,16 +40,16 @@ STRING_ESCAPE_TESTS = [
 
 
 def pairwise(iterable):
-    '''
+    """
     s -> (s0, s1), (s2, s3), (s4, s5), ...
-    '''
+    """
     a = iter(iterable)
     return zip(a, a)
 
 
 class TestParse(object):
-
-    def check(self, *args, **kwargs):
+    @staticmethod
+    def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', None)
         for code, expected in pairwise(args):
             assert parse(code, resolver=resolver) == expected
@@ -149,10 +147,10 @@ class TestParse(object):
 
 
 class TestDefaultResolver(object):
-
-    def check(self, *args):
-        for value, expected in pairwise(args):
-            assert default_resolver(value) == expected
+    @staticmethod
+    def check(*args):
+        for value_, expected in pairwise(args):
+            assert default_resolver(value_) == expected
 
     def test_empty(self):
         self.check('', '')
@@ -209,11 +207,11 @@ class TestDefaultResolver(object):
 
 
 class TestResolve(object):
-
-    def check(self, *args, **kwargs):
+    @staticmethod
+    def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', default_resolver)
-        for value, expected in pairwise(args):
-            assert resolve(value, resolver=resolver) == expected
+        for value_, expected in pairwise(args):
+            assert resolve(value_, resolver=resolver) == expected
 
     def test_list(self):
         self.check(
@@ -246,7 +244,11 @@ class TestResolve(object):
         )
 
     def test_custom_resolver(self):
-        resolver = lambda value: 1 if value == 'one' else value
+        def resolver(value_):
+            if value_ == 'one':
+                return 1
+            return value_
+
         self.check(
             IllegalValue('one'), 1,
             IllegalValue('true'), 'true',
@@ -257,3 +259,5 @@ class TestResolve(object):
             resolver=resolver
         )
 
+    def test_str_illegal(self):
+        assert str(IllegalValue('one')) == 'one'
