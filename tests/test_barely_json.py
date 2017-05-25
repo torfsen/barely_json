@@ -10,9 +10,7 @@ from six.moves import zip
 
 from barely_json import *
 
-
 empty = IllegalValue('')
-
 
 STRING_ESCAPE_TESTS = [
     r'\t', '\t',
@@ -50,8 +48,8 @@ def pairwise(iterable):
 
 
 class TestParse(object):
-
-    def check(self, *args, **kwargs):
+    @staticmethod
+    def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', None)
         for code, expected in pairwise(args):
             assert parse(code, resolver=resolver) == expected
@@ -149,8 +147,8 @@ class TestParse(object):
 
 
 class TestDefaultResolver(object):
-
-    def check(self, *args):
+    @staticmethod
+    def check(*args):
         for value, expected in pairwise(args):
             assert default_resolver(value) == expected
 
@@ -209,8 +207,8 @@ class TestDefaultResolver(object):
 
 
 class TestResolve(object):
-
-    def check(self, *args, **kwargs):
+    @staticmethod
+    def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', default_resolver)
         for value, expected in pairwise(args):
             assert resolve(value, resolver=resolver) == expected
@@ -246,7 +244,11 @@ class TestResolve(object):
         )
 
     def test_custom_resolver(self):
-        resolver = lambda value: 1 if value == 'one' else value
+        def resolver(value):
+            if value == 'one':
+                return 1
+            return value
+
         self.check(
             IllegalValue('one'), 1,
             IllegalValue('true'), 'true',
@@ -257,3 +259,7 @@ class TestResolve(object):
             resolver=resolver
         )
 
+
+class TestIllegalValue(object):
+    def test_str_illegal(self):
+        assert str(IllegalValue('one')) == 'one'

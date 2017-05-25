@@ -41,7 +41,7 @@ class IllegalValue(object):
         self.source = source
 
     def __str__(self):
-        return source
+        return self.source
 
     def __repr__(self):
         return '<{} {!r}>'.format(self.__class__.__name__, self.source)
@@ -77,9 +77,7 @@ ESCAPE_SEQUENCE_RE = re.compile(r'''
     | \\[0-7]{1,3}     # Octal escapes
     | \\N\{[^}]+\}     # Unicode characters by name
     | \\[\\'"abfnrtv]  # Single-character escapes
-    )''',
-    re.UNICODE | re.VERBOSE
-)
+    )''', re.UNICODE | re.VERBOSE)
 
 
 def decode_escapes(s):
@@ -205,4 +203,3 @@ def parse(s, resolver=default_resolver):
     if resolver:
         data = resolve(data, resolver=resolver)
     return data
-
