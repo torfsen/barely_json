@@ -5,6 +5,7 @@
 /build/
 /README.html
 /CHANGELOG.html
+/.python-version
 
 *.egg-info/
 

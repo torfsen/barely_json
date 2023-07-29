@@ -1,12 +1,6 @@
 #!/usr/bin/env python
-# encoding: utf-8
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import math
-
-from six.moves import zip
 
 from barely_json import *
 
@@ -28,9 +22,9 @@ STRING_ESCAPE_TESTS = [
     r'\r', '\r',
     r'\t', '\t',
     r'\v', '\v',
-    r'\o1', '\o1',
-    r'\o12', '\o12',
-    r'\o123', '\o123',
+    r'\o1', r'\o1',
+    r'\o12', r'\o12',
+    r'\o123', r'\o123',
     r'\xef', '\xef',
     r'\xEF', '\xef',
     r'\N{SNOWMAN}', '\N{SNOWMAN}',
@@ -47,7 +41,7 @@ def pairwise(iterable):
     return zip(a, a)
 
 
-class TestParse(object):
+class TestParse:
     @staticmethod
     def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', None)
@@ -146,7 +140,7 @@ class TestParse(object):
         self.check(*(x for case in cases for x in case))
 
 
-class TestDefaultResolver(object):
+class TestDefaultResolver:
     @staticmethod
     def check(*args):
         for value, expected in pairwise(args):
@@ -206,7 +200,7 @@ class TestDefaultResolver(object):
         self.check(*STRING_ESCAPE_TESTS)
 
 
-class TestResolve(object):
+class TestResolve:
     @staticmethod
     def check(*args, **kwargs):
         resolver = kwargs.pop('resolver', default_resolver)
@@ -260,6 +254,6 @@ class TestResolve(object):
         )
 
 
-class TestIllegalValue(object):
+class TestIllegalValue:
     def test_str_illegal(self):
         assert str(IllegalValue('one')) == 'one'

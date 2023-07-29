@@ -9,6 +9,14 @@ The format of this file is based on [Keep a Changelog] and this project adheres 
 
 - `IllegalValue.__str__` was broken (reported and fixed by [@tusharmakkar08] in [#4])
 
+### Added
+
+- Support for Python 3.7, 3.8, 3.9, 3.10, and 3.11
+
+### Removed
+
+- Support for Python 2
+
 ### Changed
 
 - Code cleanup (contributed by [@gvx] in [#3])
@@ -43,4 +51,3 @@ The format of this file is based on [Keep a Changelog] and this project adheres 
 [#2]: https://github.com/torfsen/barely_json/issues/2
 [#3]: https://github.com/torfsen/barely_json/pull/3
 [#4]: https://github.com/torfsen/barely_json/pull/4
-
