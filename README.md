@@ -68,6 +68,13 @@ See `CHANGELOG.md`.
 Distributed under the MIT license. See the file `LICENSE` for details.
 
 
+# Contributors
+
+* [@torfsen](https://github.com/torfsen)
+* [@tusharmakkar08](https://github.com/tusharmakkar08)
+* [@gvx](https://github.com/gvx)
+
+
 # Development
 
 Clone the repository:
