@@ -18,9 +18,7 @@ That's where *Barely JSON* steps in and tries to parse anything that remotely lo
 
 # Installation
 
-The supported Python versions are 2.7 as well as 3.3 and later.
-
-As usual it's recommended to use a [virtualenv] to keep things tidy.
+The supported Python versions are 3.7 and later.
 
     pip install barely_json
 
@@ -90,4 +88,3 @@ For pull requests, the tests are run using GitHub actions.
 
 [virtualenv]: https://virtualenv.pypa.io
 [tox]: https://tox.readthedocs.io
-
