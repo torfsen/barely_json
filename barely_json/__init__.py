@@ -1,24 +1,19 @@
 #!/usr/bin/env python
-# encoding: utf-8
 
 '''
 A very forgiving JSON parser.
 '''
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import codecs
 import re
 
-from six import iteritems
 from pyparsing import *
 
 
-__version__ = '0.1.1'
+__version__ = '1.0.0'
 
 
-class IllegalValue(object):
+class IllegalValue:
     '''
     A value that is illegal in JSON.
 
@@ -183,7 +178,7 @@ def resolve(data, resolver=default_resolver):
     if isinstance(data, list):
         return [resolve(item, resolver) for item in data]
     if isinstance(data, dict):
-        return {resolve(key, resolver): resolve(value, resolver) for key, value in iteritems(data)}
+        return {resolve(key, resolver): resolve(value, resolver) for key, value in data.items()}
     if isinstance(data, IllegalValue):
         return resolver(data.source)
     return data

@@ -1,6 +1,6 @@
 # Barely JSON
 
-[![Travis CI badge](https://travis-ci.org/torfsen/barely_json.svg?branch=master)](https://travis-ci.org/torfsen/barely_json)
+[![GitHub Actions badge](https://github.com/torfsen/barely_json/actions/workflows/test.yml/badge.svg)](https://github.com/torfsen/barely_json/actions/workflows/test.yml)
 
 *A Python package for parsing data that only looks like JSON*
 
@@ -77,15 +77,15 @@ Clone the repository:
     git clone https://github.com/torfsen/barely_json.git
     cd barely_json
 
-Install [tox] locally in a [virtualenv] if you haven't installed it globally:
+Install the development dependencies
 
-    virtualenv venv
-    source venv/bin/activate
-    pip install tox
+    pip install -r requirements-dev.txt
 
 Run the tests:
 
     tox
+
+For pull requests, the tests are run using GitHub actions.
 
 
 [virtualenv]: https://virtualenv.pypa.io
