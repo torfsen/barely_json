@@ -30,7 +30,7 @@ The format of this file is based on [Keep a Changelog] and this project adheres 
 - String escapes were not parsed correctly ([#2])
 
 
-## 0.1.0 (2017-05-12)
+## [0.1.0] (2017-05-12)
 
 ### Added
 
@@ -44,6 +44,7 @@ The format of this file is based on [Keep a Changelog] and this project adheres 
 [Unreleased]: https://github.com/torfsen/barely_json/compare/v1.0.0...master
 [1.0.0]: https://github.com/torfsen/barely_json/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/torfsen/barely_json/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/torfsen/barely_json/commits/v0.1.0
 
 [@gvx]: https://github.com/gvx
 [@tusharmakkar08]: https://github.com/tusharmakkar08
