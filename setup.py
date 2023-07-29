@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import io
 import os.path
 import re
 
@@ -11,7 +10,7 @@ HERE = os.path.dirname(__file__)
 # Extract version
 SOURCE_FILE = os.path.join(HERE, 'barely_json', '__init__.py')
 version = None
-with io.open(SOURCE_FILE, 'r', encoding='utf-8') as f:
+with open(SOURCE_FILE, 'r', encoding='utf-8') as f:
     for line in f:
         s = line.strip()
         m = re.match(r"""__version__\s*=\s*['"](.*)['"]""", line)
@@ -22,17 +21,18 @@ if not version:
 
 # Extract requirements
 REQUIREMENTS_FILE = os.path.join(HERE, 'requirements.txt')
-with io.open(REQUIREMENTS_FILE, 'r', encoding='utf-8') as f:
+with open(REQUIREMENTS_FILE, 'r') as f:
     requirements = f.readlines()
 
-long_description = """
-A lot of data is encoded in a format that is similar to JSON but not quite valid JSON. This module tries to be as forgiving as possible while parsing such data.
-""".strip()
+README_FILE = os.path.join(HERE, 'README.md')
+with open(README_FILE, 'r') as f:
+    long_description =f.read()
 
 setup(
     name='barely_json',
     description='Parse invalid, malformed and barely JSON-esque data',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/torfsen/barely_json',
     version=version,
     license='MIT',
