@@ -9,5 +9,7 @@ requirements-dev.txt:
 requirements-test.txt:
 	pip-compile -q requirements-test.in
 
-requirements: requirements.txt requirements-dev.txt requirements-test.txt
+requirements-tox.txt:
+	pip-compile -q requirements-tox.in
 
+requirements: requirements.txt requirements-dev.txt requirements-test.txt requirements-tox.txt

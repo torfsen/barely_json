@@ -1,2 +1,2 @@
+-r requirements-tox.in
 pip-tools==6.14.0
-tox==4.6.4

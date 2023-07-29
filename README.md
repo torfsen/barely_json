@@ -77,11 +77,9 @@ Clone the repository:
     git clone https://github.com/torfsen/barely_json.git
     cd barely_json
 
-Install [tox] locally in a [virtualenv] if you haven't installed it globally:
+Install the development dependencies
 
-    virtualenv venv
-    source venv/bin/activate
-    pip install tox
+    pip install -r requirements-dev.txt
 
 Run the tests:
 
