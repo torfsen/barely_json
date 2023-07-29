@@ -1,6 +1,6 @@
 # Barely JSON
 
-[![Travis CI badge](https://travis-ci.org/torfsen/barely_json.svg?branch=master)](https://travis-ci.org/torfsen/barely_json)
+[![GitHub Actions badge](https://github.com/torfsen/barely_json/actions/workflows/test.yml/badge.svg)](https://github.com/torfsen/barely_json/actions/workflows/test.yml)
 
 *A Python package for parsing data that only looks like JSON*
 
@@ -84,6 +84,8 @@ Install the development dependencies
 Run the tests:
 
     tox
+
+For pull requests, the tests are run using GitHub actions.
 
 
 [virtualenv]: https://virtualenv.pypa.io
