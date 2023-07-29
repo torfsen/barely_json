@@ -1,8 +1,5 @@
 PHONY: requirements
 
-requirements.txt:
-	pip-compile -q requirements.in
-
 requirements-dev.txt:
 	pip-compile -q requirements-dev.in
 
@@ -12,4 +9,4 @@ requirements-test.txt:
 requirements-tox.txt:
 	pip-compile -q requirements-tox.in
 
-requirements: requirements.txt requirements-dev.txt requirements-test.txt requirements-tox.txt
+requirements: requirements-dev.txt requirements-test.txt requirements-tox.txt
